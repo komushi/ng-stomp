@@ -9,7 +9,24 @@
 /*global
     angular, SockJS, Stomp */
 
-angular
+(function (factory) {
+  'use strict'
+  if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(
+      typeof angular !== 'undefined' ? angular : require('angular'),
+      typeof SockJS !== 'undefined' ? SockJS : require('SockJS'),
+      typeof Stomp !== 'undefined' ? Stomp : require('Stomp')
+	)
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['angular', 'SockJS', 'Stomp'], factory)
+  } else {
+    // Browser globals
+    factory(angular, SockJS, Stomp)
+  }
+}(function (angular, SockJS, Stomp) {
+  angular
   .module('ngStomp', [])
   .service('$stomp', [
     '$rootScope', '$q',
@@ -76,4 +93,5 @@ angular
         return dfd.promise
       }
     }]
-)
+  )
+}))
