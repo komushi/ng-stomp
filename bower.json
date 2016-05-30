@@ -21,7 +21,7 @@
     "tests"
   ],
   "dependencies": {
-    "sockjs": "0.3.4",
-    "stomp-websocket": "2.3.4"
+    "sockjs-client": "1.1.x",
+    "stomp-websocket": "2.3.x"
   }
 }
