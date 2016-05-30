@@ -1,7 +1,7 @@
 /**
  * ngStomp
  *
- * @version 0.2.0
+ * @version 0.4.0
  * @author Maik Hummel <m@ikhummel.com>
  * @license MIT
  */
@@ -35,6 +35,10 @@
       this.stomp = null
       this.debug = null
 
+      function isConnected () {
+        return this.stomp && this.stomp.connected
+      }
+
       this.setDebug = function (callback) {
         this.debug = callback
       }
@@ -58,7 +62,11 @@
 
       this.disconnect = function () {
         var dfd = $q.defer()
-        this.stomp.disconnect(dfd.resolve)
+        if (isConnected()) {
+          this.stomp.disconnect(dfd.resolve)
+        } else {
+          dfd.resolve()
+        }
         return dfd.promise
       }
 
