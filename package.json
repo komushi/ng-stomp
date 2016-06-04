@@ -1,6 +1,6 @@
 {
   "name": "ng-stomp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "STOMP for AngularJS with support for module loading & defer notify",
   "main": "src/ng-stomp.js",
   "dependencies": {
@@ -24,7 +24,7 @@
     "STOMP",
     "websocket"
   ],
-  "author": "Maik Hummel <m@ikhummel.com>",
+  "author": "Lei Xu <komushi@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/komushi/ng-stomp/issues"

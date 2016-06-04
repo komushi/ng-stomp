@@ -1,8 +1,8 @@
 /**
  * ngStomp
  *
- * @version 0.5.0
- * @author Maik Hummel <m@ikhummel.com>
+ * @version 0.6.0
+ * @author Lei Xu <komushi@gmail.com>
  * @license MIT
  */
 
@@ -17,7 +17,7 @@
       typeof angular !== 'undefined' ? angular : require('angular'),
       typeof SockJS !== 'undefined' ? SockJS : require('SockJS'),
       typeof Stomp !== 'undefined' ? Stomp : require('Stomp')
-	)
+  )
   } else if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define(['angular', 'SockJS', 'Stomp'], factory)
@@ -39,6 +39,12 @@
         return this.stomp && this.stomp.connected
       }
 
+      function parseURI (uri) {
+        var parser = document.createElement('a')
+        parser.href = uri
+        return parser
+      }
+
       this.setDebug = function (callback) {
         this.debug = callback
       }
@@ -48,8 +54,14 @@
 
         var dfd = $q.defer()
 
-        this.sock = new SockJS(endpoint)
-        this.stomp = Stomp.over(this.sock)
+        if (parseURI(endpoint).protocol === 'ws:' || parseURI(endpoint).protocol === 'wss:') {
+          var ws = new WebSocket(endpoint)
+          this.stomp = Stomp.over(ws)
+        } else {
+          this.sock = new SockJS(endpoint)
+          this.stomp = Stomp.over(this.sock)
+        }
+
         this.stomp.debug = this.debug
         this.stomp.connect(headers, function (frame) {
           dfd.resolve(frame)
@@ -70,20 +82,27 @@
         return dfd.promise
       }
 
+      this.subscriptions = {}
+
       this.subscribe = this.on = function (destination) {
         var dfd = $q.defer()
 
-        this.stomp.subscribe(destination, function (res) {
-          dfd.notify(res)
-        }, function (err) {
-          dfd.reject(err)
-        })
+        if (!this.subscriptions[destination]) {
+          var sub = this.stomp.subscribe(destination, function (res) {
+            dfd.notify(res)
+          })
+
+          this.subscriptions[destination] = sub
+        }
 
         return dfd.promise
       }
 
-      this.unsubscribe = this.off = function (subscription) {
-        subscription.unsubscribe()
+      this.unsubscribe = this.off = function (destination) {
+        if (this.subscriptions[destination]) {
+          this.subscriptions[destination].unsubscribe()
+          delete this.subscriptions[destination]
+        }
       }
 
       this.send = function (destination, body, headers) {
