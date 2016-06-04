@@ -1,7 +1,7 @@
 /**
  * ngStomp
  *
- * @version 0.4.0
+ * @version 0.5.0
  * @author Maik Hummel <m@ikhummel.com>
  * @license MIT
  */
@@ -70,18 +70,16 @@
         return dfd.promise
       }
 
-      this.subscribe = this.on = function (destination, callback, headers) {
-        headers = headers || {}
-        return this.stomp.subscribe(destination, function (res) {
-          var payload = null
-          try {
-            payload = JSON.parse(res.body)
-          } finally {
-            if (callback) {
-              callback(payload, res.headers, res)
-            }
-          }
-        }, headers)
+      this.subscribe = this.on = function (destination) {
+        var dfd = $q.defer()
+
+        this.stomp.subscribe(destination, function (res) {
+          dfd.notify(res)
+        }, function (err) {
+          dfd.reject(err)
+        })
+
+        return dfd.promise
       }
 
       this.unsubscribe = this.off = function (subscription) {

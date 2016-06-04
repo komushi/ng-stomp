@@ -1,10 +1,11 @@
 {
   "name": "ng-stomp",
-  "version": "0.4.0",
-  "homepage": "https://github.com/beevelop/ng-stomp",
+  "version": "0.5.0",
+  "homepage": "https://github.com/komushi/ng-stomp",
   "authors": [
     "Maik Hummel <m@ikhummel.com>",
-	"Kristof Bogaerts <kristofbogaerts@gmail.com>"
+	  "Kristof Bogaerts <kristofbogaerts@gmail.com>",
+    "Lei Xu <komushi@gmail.com>",
   ],
   "description": "STOMP for AngularJS",
   "main": "src/ng-stomp.js",

@@ -14,7 +14,7 @@
 
 ### Install via Bower:
 ```bash
-bower install --save ng-stomp
+bower install --save ng-stomp-notify
 ```
 
 #### Add standalone version (dependencies included) to your HTML file
@@ -27,24 +27,6 @@ bower install --save ng-stomp
 <script src="bower_components/sockjs/sockjs.min.js"></script>
 <script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
 <script src="bower_components/ng-stomp/dist/ng-stomp.min.js"></script>
-```
-----
-
-### Install via npm:
-```bash
-npm install --save ng-stomp
-```
-
-#### Add standalone version (dependencies included) to your HTML file
-```html
-<script src="node_modules/ng-stomp/dist/ng-stomp.standalone.min.js"></script>
-```
-
-#### Or add SockJS + STOMP + (minified) Stompie individually:
-```html
-<script src="node_modules/sockjs/sockjs.min.js"></script>
-<script src="node_modules/stompjs/lib/stomp.min.js"></script>
-<script src="node_modules/ng-stomp/dist/ng-stomp.min.js"></script>
 ```
 ----
 
