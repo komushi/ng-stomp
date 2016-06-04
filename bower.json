@@ -5,7 +5,7 @@
   "authors": [
     "Maik Hummel <m@ikhummel.com>",
 	  "Kristof Bogaerts <kristofbogaerts@gmail.com>",
-    "Lei Xu <komushi@gmail.com>",
+    "Lei Xu <komushi@gmail.com>"
   ],
   "description": "STOMP for AngularJS",
   "main": "src/ng-stomp.js",
