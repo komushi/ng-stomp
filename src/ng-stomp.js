@@ -1,7 +1,7 @@
 /**
  * ngStomp
  *
- * @version 0.6.0
+ * @version 0.6.1
  * @author Lei Xu <komushi@gmail.com>
  * @license MIT
  */
@@ -84,13 +84,15 @@
 
       this.subscriptions = {}
 
-      this.subscribe = this.on = function (destination) {
+      this.subscribe = this.on = function (destination, headers) {
+        headers = headers || {}
+
         var dfd = $q.defer()
 
         if (!this.subscriptions[destination]) {
           var sub = this.stomp.subscribe(destination, function (res) {
             dfd.notify(res)
-          })
+          }, headers)
 
           this.subscriptions[destination] = sub
         }

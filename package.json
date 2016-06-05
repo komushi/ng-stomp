@@ -1,6 +1,6 @@
 {
   "name": "ng-stomp",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "STOMP for AngularJS with support for module loading & defer notify",
   "main": "src/ng-stomp.js",
   "dependencies": {
