@@ -1,7 +1,7 @@
 /**
  * ngStomp
  *
- * @version 0.6.1
+ * @version 0.6.2
  * @author Lei Xu <komushi@gmail.com>
  * @license MIT
  */
@@ -34,10 +34,6 @@
       this.sock = null
       this.stomp = null
       this.debug = null
-
-      function isConnected () {
-        return this.stomp && this.stomp.connected
-      }
 
       function parseURI (uri) {
         var parser = document.createElement('a')
@@ -74,7 +70,12 @@
 
       this.disconnect = function () {
         var dfd = $q.defer()
-        if (isConnected()) {
+        if (this.stomp && this.stomp.connected) {
+          for (var destination in this.subscriptions)
+          {
+            this.unsubscribe(destination)
+          } 
+
           this.stomp.disconnect(dfd.resolve)
         } else {
           dfd.resolve()

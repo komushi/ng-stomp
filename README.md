@@ -25,10 +25,10 @@ bower install --save ng-stomp-notify
 ## Usage
 Inject it in your controller:
 ```js
-angular.module('Ctrl')
-    .controller('stompgridController', ['$scope', '$stomp', function($scope, $stomp){
+var app =  angular.module('ngStompExampleApp', ['ngStomp']);
 
-    // Connect
+app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
+
     $scope.connect = function () {
         var connectHeaders = {};
         connectHeaders.login = $scope.model.usr;
@@ -45,7 +45,7 @@ angular.module('Ctrl')
 
     // Disconnect
     $scope.disconnect = function () {
-        $stomp.connect().then(
+        $stomp.disconnect().then(
             function () {
                 console.log('Disconnected');
             });        
@@ -53,34 +53,37 @@ angular.module('Ctrl')
     
     // Subscribe a queue
     $scope.subscribe = function () {
-        $stomp.subscribe($scope.model.queue).then(null,null,updateGrid);
+        
+        var headers = {};
+
+        $stomp.subscribe($scope.model.subdest, headers).then(null,null, showResponse);
+    };
+
+    // notify callback function
+    var showResponse = function (res) {
+        console.log(JSON.stringify(JSON.parse(res.body)));
     };
 
     // Unsubscribe a queue
     $scope.unsubscribe = function () {
-        $stomp.unsubscribe($scope.model.queue);
+        $stomp.unsubscribe($scope.model.subdest);
     };
 
     // Send a message
     $scope.send = function () {
-        $stomp.send($scope.model.dest, JSON.parse($scope.model.payload), JSON.parse($scope.model.headers));
-    };
-
-    // Notify callback function
-    var updateGrid = function (res) {
-        $scope.model.rowCollection.push(JSON.parse(res.body));
+        $stomp.send($scope.model.pubdest, JSON.parse($scope.model.payload), JSON.parse($scope.model.headers));
     };
 
     var initialize = function () {
         $scope.model = {}
-        $scope.model.url = 'http://localhost:15674/stomp';
+
+        $scope.model.url = 'ws://127.0.0.1:15674/ws';
         $scope.model.usr = 'guest';
         $scope.model.pwd = 'guest';
-        $scope.model.queue = '/topic/dest';
-        $scope.model.dest = '/topic/dest';
-        $scope.model.payload = '{"key":"value"}';
+        $scope.model.subdest = '/topic/dest';
+        $scope.model.pubdest = '/topic/dest';
+        $scope.model.payload = '{"name":"Tom", "type":"Type0", "sales":50}';
         $scope.model.headers = '{}';
-        $scope.model.rowCollection = [];
     };
 
     initialize();

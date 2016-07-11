@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Angular StompJS Demo</title>
+		<link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css" />
+		<!-- <base href="/"> -->
+		<script src="lib/angular/angular.js"></script>
+		<!-- ngStomp -->
+		<script src="lib/ng-stomp-notify/ng-stomp.standalone.min.js"></script>
+	</head>
+
+	<body ng-app="ngStompExampleApp">
+
+<script>
+var app =  angular.module('ngStompExampleApp', ['ngStomp']);
+
+app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
+
+    $scope.connect = function () {
+        var connectHeaders = {};
+        connectHeaders.login = $scope.model.usr;
+        connectHeaders.passcode = $scope.model.pwd;
+
+        $stomp.connect($scope.model.url, connectHeaders)
+            .then(function (frame) {
+                console.log('Connected: ' + frame);
+            })
+            .catch(function(reason) {
+                console.error('Connection error:', reason);
+            });
+    };
+
+    // Disconnect
+    $scope.disconnect = function () {
+        $stomp.disconnect().then(
+            function () {
+                console.log('Disconnected');
+            });        
+    };
+    
+    // Subscribe a queue
+    $scope.subscribe = function () {
+        
+        var headers = {};
+
+        $stomp.subscribe($scope.model.subdest, headers).then(null,null, showResponse);
+    };
+
+    // notify callback function
+    var showResponse = function (res) {
+        console.log(JSON.stringify(JSON.parse(res.body)));
+    };
+
+    // Unsubscribe a queue
+    $scope.unsubscribe = function () {
+        $stomp.unsubscribe($scope.model.subdest);
+    };
+
+    // Send a message
+    $scope.send = function () {
+        $stomp.send($scope.model.pubdest, JSON.parse($scope.model.payload), JSON.parse($scope.model.headers));
+    };
+
+    var initialize = function () {
+        $scope.model = {}
+
+        $scope.model.url = 'ws://127.0.0.1:15674/ws';
+        $scope.model.usr = 'guest';
+        $scope.model.pwd = 'guest';
+        $scope.model.subdest = '/topic/dest';
+        $scope.model.pubdest = '/topic/dest';
+        $scope.model.payload = '{"name":"Tom", "type":"Type0", "sales":50}';
+        $scope.model.headers = '{}';
+    };
+
+    initialize();
+
+}]);
+</script>
+
+<div class="container-fluid" ng-controller="stompController">
+	<div class="row">
+	  <div class="col-md-3">
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+	   	    <div class="form-group">
+	          <label for="url">Endpoint URL:</label>
+	          <input type="text" class="form-control" id="url" placeholder="http://localhost:15674/stomp" ng-model="model.url">
+	          <label for="usr">User:</label>
+	          <input type="text" class="form-control" id="usr" ng-model="model.usr">
+	          <label for="pwd">Password:</label>
+	          <input type="password" class="form-control" id="pwd" ng-model="model.pwd">
+			    </div>
+	        <div class="form-group">
+	          <button ng-click="connect()">Connect</button>
+	          <button ng-click="disconnect()">Disconnect</button>
+	        </div>
+	      </div>      
+	    </div>
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+	        <div class="form-group">
+	          <label for="queue">Sub Dest</label>
+	          <input type="text" class="form-control" id="subdest" placeholder='/topic/subdest' ng-model="model.subdest">
+	        </div>
+	        <div class="form-group">
+	          <button ng-click="subscribe()">Subscribe</button>
+	          <button ng-click="unsubscribe()">Unsubscribe</button>
+	        </div>
+	      </div>
+	    </div>
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+	        <div class="form-group">
+	          <label for="queue">Pub Dest</label>
+	          <input type="text" class="form-control" id="pubdest" placeholder='/topic/pubdest' ng-model="model.pubdest">
+	          <label for="body">Body</label>
+	          <textarea class="form-control" rows="2" id="payload" placeholder='{"key":"value"}' ng-model="model.payload"></textarea>
+	        </div>
+	        <div class="form-group">
+	          <button ng-click="send()">Send</button>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</div>
+
+	</body>
+</html>

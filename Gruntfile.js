@@ -26,6 +26,5 @@ module.exports = function (grunt) {
   })
 
   grunt.loadNpmTasks('grunt-contrib-uglify')
-  grunt.loadNpmTasks('grunt-standard')
-  grunt.registerTask('default', ['standard', 'uglify'])
+  grunt.registerTask('default', ['uglify'])
 }
