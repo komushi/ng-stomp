@@ -4,6 +4,7 @@
   "description": "STOMP for AngularJS with support for module loading & defer notify",
   "main": "src/ng-stomp.js",
   "dependencies": {
+    "angular": "~1.5",
     "sockjs-client": "^1.1.1",
     "stompjs": "^2.3.3"
   },
