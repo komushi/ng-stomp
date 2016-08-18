@@ -1,7 +1,7 @@
 /**
  * ngStomp
  *
- * @version 0.6.2
+ * @version 0.7.0
  * @author Lei Xu <komushi@gmail.com>
  * @license MIT
  */
@@ -32,8 +32,9 @@
     '$rootScope', '$q',
     function ($rootScope, $q) {
       this.sock = null
-      this.stomp = null
-      this.debug = null
+      // this.debug = null
+
+      this.stomps = {}
 
       function parseURI (uri) {
         var parser = document.createElement('a')
@@ -41,25 +42,25 @@
         return parser
       }
 
-      this.setDebug = function (callback) {
-        this.debug = callback
-      }
+      // this.setDebug = function (callback) {
+      //   this.debug = callback
+      // }
 
-      this.connect = function (endpoint, headers) {
+      this.connect = function (name, endpoint, headers) {
         headers = headers || {}
 
         var dfd = $q.defer()
 
         if (parseURI(endpoint).protocol === 'ws:' || parseURI(endpoint).protocol === 'wss:') {
           var ws = new WebSocket(endpoint)
-          this.stomp = Stomp.over(ws)
+          this.stomps[name] = Stomp.over(ws)
         } else {
           this.sock = new SockJS(endpoint)
-          this.stomp = Stomp.over(this.sock)
+          this.stomps[name] = Stomp.over(this.sock)
         }
 
-        this.stomp.debug = this.debug
-        this.stomp.connect(headers, function (frame) {
+        // this.stomp.debug = this.debug
+        this.stomps[name].connect(headers, function (frame) {
           dfd.resolve(frame)
         }, function (err) {
           dfd.reject(err)
@@ -68,52 +69,50 @@
         return dfd.promise
       }
 
-      this.disconnect = function () {
+      this.disconnect = function (name) {
         var dfd = $q.defer()
-        if (this.stomp && this.stomp.connected) {
-          for (var destination in this.subscriptions)
+        if (this.stomps[name] && this.stomps[name].connected) {
+          for (var destination in this.stomps[name].subscriptions)
           {
-            this.unsubscribe(destination)
+            this.unsubscribe(name, destination)
           } 
 
-          this.stomp.disconnect(dfd.resolve)
+          this.stomps[name].disconnect(dfd.resolve)
         } else {
           dfd.resolve()
         }
         return dfd.promise
       }
 
-      this.subscriptions = {}
-
-      this.subscribe = this.on = function (destination, headers) {
+      this.subscribe = this.on = function (name, destination, headers) {
         headers = headers || {}
 
         var dfd = $q.defer()
 
-        if (!this.subscriptions[destination]) {
-          var sub = this.stomp.subscribe(destination, function (res) {
+        if (!this.stomps[name].subscriptions[destination]) {
+          var sub = this.stomps[name].subscribe(destination, function (res) {
             dfd.notify(res)
           }, headers)
 
-          this.subscriptions[destination] = sub
+          this.stomps[name].subscriptions[destination] = sub
         }
 
         return dfd.promise
       }
 
-      this.unsubscribe = this.off = function (destination) {
-        if (this.subscriptions[destination]) {
-          this.subscriptions[destination].unsubscribe()
-          delete this.subscriptions[destination]
+      this.unsubscribe = this.off = function (name, destination) {
+        if (this.stomps[name].subscriptions[destination]) {
+          this.stomps[name].subscriptions[destination].unsubscribe()
+          delete this.stomps[name].subscriptions[destination]
         }
       }
 
-      this.send = function (destination, body, headers) {
+      this.send = function (name, destination, body, headers) {
         var dfd = $q.defer()
         try {
           var payloadJson = JSON.stringify(body)
           headers = headers || {}
-          this.stomp.send(destination, headers, payloadJson)
+          this.stomps[name].send(destination, headers, payloadJson)
           dfd.resolve()
         } catch (e) {
           dfd.reject(e)
