@@ -1,6 +1,6 @@
 # ngStomp
-
-> [STOMP](http://jmesnil.net/stomp-websocket/doc/) promised for [AngularJS](https://angularjs.org)
+## Multiple destinations and topics supported
+[STOMP](http://jmesnil.net/stomp-websocket/doc/) promised for [AngularJS](https://angularjs.org)
 
 ## Installation
 
@@ -31,10 +31,10 @@ app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
 
     $scope.connect = function () {
         var connectHeaders = {};
-        connectHeaders.login = $scope.model.usr;
-        connectHeaders.passcode = $scope.model.pwd;
+        connectHeaders.login = $scope.stomp.usr;
+        connectHeaders.passcode = $scope.stomp.pwd;
 
-        $stomp.connect($scope.model.url, connectHeaders)
+        $stomp.connect($scope.stomp.name, $scope.stomp.url, connectHeaders)
             .then(function (frame) {
                 console.log('Connected: ' + frame);
             })
@@ -45,7 +45,7 @@ app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
 
     // Disconnect
     $scope.disconnect = function () {
-        $stomp.disconnect().then(
+        $stomp.disconnect($scope.stomp.name).then(
             function () {
                 console.log('Disconnected');
             });        
@@ -56,7 +56,7 @@ app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
         
         var headers = {};
 
-        $stomp.subscribe($scope.model.subdest, headers).then(null,null, showResponse);
+        $stomp.subscribe($scope.stomp.name, $scope.stomp.subdest, headers).then(null,null, showResponse);
     };
 
     // notify callback function
@@ -66,37 +66,28 @@ app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
 
     // Unsubscribe a queue
     $scope.unsubscribe = function () {
-        $stomp.unsubscribe($scope.model.subdest);
+        $stomp.unsubscribe($scope.stomp.name, $scope.stomp.subdest);
     };
 
     // Send a message
     $scope.send = function () {
-        $stomp.send($scope.model.pubdest, JSON.parse($scope.model.payload), JSON.parse($scope.model.headers));
+        $stomp.send($scope.stomp.name, $scope.stomp.pubdest, JSON.parse($scope.stomp.payload), JSON.parse($scope.stomp.headers));
     };
 
     var initialize = function () {
-        $scope.model = {}
+        $scope.stomp = {}
 
-        $scope.model.url = 'ws://127.0.0.1:15674/ws';
-        $scope.model.usr = 'guest';
-        $scope.model.pwd = 'guest';
-        $scope.model.subdest = '/topic/dest';
-        $scope.model.pubdest = '/topic/dest';
-        $scope.model.payload = '{"name":"Tom", "type":"Type0", "sales":50}';
-        $scope.model.headers = '{}';
+        $scope.stomp.url = 'ws://127.0.0.1:15674/ws';
+        $scope.stomp.usr = 'guest';
+        $scope.stomp.pwd = 'guest';
+        $scope.stomp.subdest = '/topic/dest';
+        $scope.stomp.pubdest = '/topic/dest';
+        $scope.stomp.payload = '{"name":"Tom", "type":"Type0", "sales":50}';
+        $scope.stomp.headers = '{}';
+        $scope.stomp.name = 'rabbitmq_test';
     };
 
     initialize();
 
 }]);
 ```
-
-## API-Docs (TBD)
-- setDebug(callback)
-- connect(endpoint, headers)
-- disconnect
-- subscribe(destination)
-- on(destination)
-- unsubscribe(destination)
-- off(destination)
-- send(destination, body, headers)
