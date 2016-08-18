@@ -31,7 +31,7 @@
   .service('$stomp', [
     '$rootScope', '$q',
     function ($rootScope, $q) {
-      this.sock = null
+      // this.sock = null
       // this.debug = null
 
       this.stomps = {}
@@ -54,9 +54,11 @@
         if (parseURI(endpoint).protocol === 'ws:' || parseURI(endpoint).protocol === 'wss:') {
           var ws = new WebSocket(endpoint)
           this.stomps[name] = Stomp.over(ws)
+          this.stomps[name].subs = {}
         } else {
-          this.sock = new SockJS(endpoint)
-          this.stomps[name] = Stomp.over(this.sock)
+          var sock = new SockJS(endpoint)
+          this.stomps[name] = Stomp.over(sock)
+          this.stomps[name].subs = {}
         }
 
         // this.stomp.debug = this.debug
@@ -72,9 +74,10 @@
       this.disconnect = function (name) {
         var dfd = $q.defer()
         if (this.stomps[name] && this.stomps[name].connected) {
-          for (var destination in this.stomps[name].subscriptions)
+          for (var destination in this.stomps[name].subs)
           {
             this.unsubscribe(name, destination)
+            // sub.unsubscribe()
           } 
 
           this.stomps[name].disconnect(dfd.resolve)
@@ -89,21 +92,29 @@
 
         var dfd = $q.defer()
 
-        if (!this.stomps[name].subscriptions[destination]) {
-          var sub = this.stomps[name].subscribe(destination, function (res) {
-            dfd.notify(res)
-          }, headers)
+        if (this.stomps[name]) {
+          if (this.stomps[name].connected){
+            if (!this.stomps[name].subs[destination]) {
+              var sub = this.stomps[name].subscribe(destination, function (res) {
+                dfd.notify(res)
+              }, headers)
 
-          this.stomps[name].subscriptions[destination] = sub
+              this.stomps[name].subs[destination] = sub
+            }
+          }
         }
 
         return dfd.promise
       }
 
       this.unsubscribe = this.off = function (name, destination) {
-        if (this.stomps[name].subscriptions[destination]) {
-          this.stomps[name].subscriptions[destination].unsubscribe()
-          delete this.stomps[name].subscriptions[destination]
+        if (this.stomps[name]) {
+          if (this.stomps[name].connected){
+            if (this.stomps[name].subs[destination]) {
+              this.stomps[name].subs[destination].unsubscribe()
+              delete this.stomps[name].subs[destination]
+            }
+          }
         }
       }
 
