@@ -55,10 +55,12 @@
           var ws = new WebSocket(endpoint)
           this.stomps[name] = Stomp.over(ws)
           this.stomps[name].subs = {}
+          this.stomps[name].debug = null
         } else {
           var sock = new SockJS(endpoint)
           this.stomps[name] = Stomp.over(sock)
           this.stomps[name].subs = {}
+          this.stomps[name].debug = null
         }
 
         // this.stomp.debug = this.debug
