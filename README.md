@@ -77,7 +77,10 @@ app.controller('stompController', ['$scope', '$stomp', function($scope, $stomp){
     var initialize = function () {
         $scope.stomp = {}
 
+        // or use http://127.0.0.1:15674/stomp to test with rabbitmq
+        // $rabbitmq-plugins enable rabbitmq_web_stomp - enable this in advance
         $scope.stomp.url = 'ws://127.0.0.1:15674/ws';
+
         $scope.stomp.usr = 'guest';
         $scope.stomp.pwd = 'guest';
         $scope.stomp.subdest = '/topic/dest';
